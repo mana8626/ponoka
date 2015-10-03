@@ -2,6 +2,8 @@ import numpy as np
 from chainer import cuda, Function, FunctionSet, gradient_check, Variable, optimizers
 import chainer.functions as F
 import matplotlib.pyplot as plt
+import pandas.io.data as web
+import datetime
 
 
 # def get_future_value(start_bfe_1, start_bfe_2, start_bfe_3, ..., start_bfe_30):
@@ -14,89 +16,25 @@ import matplotlib.pyplot as plt
 # x_train
 # x_test
 
-x_train = [
-    [
-        16147.540039,
-        15835.410156,
-        15943.679688,
-        16002.879883,
-        15785.150391,
-        15912.059570,
-        15657.200195,
-        15649.070312,
-        15845.150391,
-        15695.459961,
-        15724.139648,
-        15710.889648,
-        15749.009766,
-        15900.629883,
-        15473.570312,
-        15091.450195,
-        15038.639648,
-        15164.339844,
-        15112.700195,
-        15132.230469,
-        14788.559570,
-        14353.330078,
-        14213.099609,
-        14233.419922,
-        14387.110352,
-        14647.830078,
-        14821.730469,
-        14785.839844,
-        14538.200195,
-        14343.730469
-    ],
-    [
-        16147.540039,
-        16147.540039,
-        15835.410156,
-        15943.679688,
-        16002.879883,
-        15785.150391,
-        15912.059570,
-        15657.200195,
-        15649.070312,
-        15845.150391,
-        15695.459961,
-        15724.139648,
-        15710.889648,
-        15749.009766,
-        15900.629883,
-        15473.570312,
-        15091.450195,
-        15038.639648,
-        15164.339844,
-        15112.700195,
-        15132.230469,
-        14788.559570,
-        14353.330078,
-        14213.099609,
-        14233.419922,
-        14387.110352,
-        14647.830078,
-        14821.730469,
-        14785.839844,
-        14538.200195
-    ]
-]
+start = datetime.datetime(2014, 1, 1)
+end = datetime.datetime(2014, 9, 1)
+nikkei_data= web.DataReader('^N225', 'yahoo', start, end)
 
-t_train = [
-    [
-        14514.469727,
-        14729.480469,
-        14701.139648,
-        14618.610352,
-        14803.639648
-    ],
-    [
-        14343.730469,
-        14514.469727,
-        14729.480469,
-        14701.139648,
-        14618.610352
-    ]
-]
+values = nikkei_data.values
+target_data = []
+for i in range(0, len(values)):
+    target_data.append(values[i][0])
+
+
+x_train = []
+for j in range(0, (len(values)-35)):
+    x_train.append(target_data[j:j+30])
+#print(x_train)
+
+t_train = []
+for k in range(30, len(values)-5):
+    t_train.append(target_data[k:k+5])
+#print(t_train)
 
 x_test = x_train
 t_test = t_train
@@ -107,9 +45,9 @@ x_test = np.array(x_test, dtype=np.float32)
 t_test = np.array(t_test, dtype=np.float32)
 
 
-n_train_batchset = 2
+n_train_batchset = len(x_train)
 
-n_test_batchset = 2
+n_test_batchset = len(x_test)
 
 
 
@@ -177,6 +115,9 @@ for epoch in range(1, n_epoch + 1):
     print('test  mean loss={}'.format(sum_loss / n_test_batchset))
 
 # do that you want to after training
-x_array = range(1, 51)
-plt.plot(x_array, y_array)
-plt.show()
+
+
+
+#x_array = range(1, 51)
+#plt.plot(x_array, y_array)
+#plt.show()
